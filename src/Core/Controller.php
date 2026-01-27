@@ -17,12 +17,15 @@ abstract class Controller
         extract($params);
 
         // Charge le fichier de vue (template) correspondant
-//        require dirname(__DIR__) . "/../templates/$view.php";
+        // require dirname(__DIR__) . "/../templates/$view.php";
 
-//        Partie : 2
-        $contentFile = dirname(__DIR__) . "/../templates/$view.php";
-        $layoutFile = dirname(__DIR__) . "/../templates/layout.php";
-        require $layoutFile;
+        // Partie : 2
+        ob_start(); // Démarre une "zone tampon" : rien ne s'affiche encore à l'écran
+        // La vue génère du HTML, mais au lieu d'être affiché, tout est capturé
+        require dirname(__DIR__) . "/../templates/$view.php";
+        // Récupère tout le HTML généré par la vue et vide la zone tampon
+        $contentFile = ob_get_clean();
+        require dirname(__DIR__) . "/../templates/layout.php";
 
         /**
          * En PHP, include et require servent tous les deux à charger un fichier PHP dans un autre fichier (templates, config, fonctions, etc.).

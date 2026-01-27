@@ -32,14 +32,35 @@ class EntityManager
      */
     public function flush(): void
     {
-        foreach ($this->toPersist as $entity) {
-            $this->save($entity);
+        // Rien à enregistrer → on sort immédiatement
+        if (empty($this->toPersist)) {
+            return;
         }
 
-        // On vide la liste après sauvegarde
-        $this->toPersist = [];
+        try {
+            // Démarre une transaction :
+            // toutes les opérations suivantes seront atomiques
+            $this->db->beginTransaction();
 
-        $this->db = null;
+            // Sauvegarde chaque entité enregistrée via persist()
+            foreach ($this->toPersist as $entity) {
+                $this->save($entity);
+            }
+
+            // Valide définitivement toutes les écritures
+            $this->db->commit();
+
+            // Vide la liste des entités après succès
+            $this->toPersist = [];
+
+        } catch (\Throwable $e) {
+            // Annule tout si une erreur survient
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $e; // on remonte l'erreur
+        }
     }
 
     private function save(object $entity): void
@@ -69,9 +90,9 @@ class EntityManager
 
         // On ne veut pas enregistrer "id" dans un INSERT/UPDATE
         unset($data['id']);
+        $columns = array_keys($data); // ex: ['username','email','password']
 
         if ($entity->getId() === null) {
-            $columns = array_keys($data);               // ex: ['username','email','password']
             $fields = implode(', ', $columns);          // "username, email, password"
             $marks = ':' . implode(', :', $columns);    // ":username, :email, :password"
 
@@ -83,7 +104,6 @@ class EntityManager
             return;
         }
 
-        $columns = array_keys($data);
         $setParts = [];
 
         foreach ($columns as $col) {

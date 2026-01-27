@@ -60,7 +60,7 @@
 </header>
 
 <main class="container py-5">
-    <?php require $contentFile; ?>
+    <?= $contentFile; ?>
 </main>
 
 <footer class="container-fluid row row-cols-1 row-cols-sm-2 row-cols-md-5 py-5 my-5 border-top">
