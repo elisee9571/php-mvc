@@ -10,7 +10,7 @@ App::run();
 
 /**
  *
- * user.php est le POINT D’ENTRÉE de ton application
+ * index.php est le POINT D’ENTRÉE de ton application
  * ----------------------------------------------------------
  * Quand un utilisateur visite ton site, par exemple :
  *
