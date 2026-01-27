@@ -18,7 +18,7 @@ App::run();
  *   http://localhost:8000/contact
  *   http://localhost:8000/user/12
  *
- * Peu importe l’URL, c’est toujours ce fichier user.php
+ * Peu importe l’URL, c’est toujours ce fichier index.php
  * qui est exécuté en premier.
  *
  * - On appelle ça un "Front Controller"
@@ -26,7 +26,7 @@ App::run();
  *
  *
  * ----------------------------------------------------------
- * 1) Pourquoi user.php doit rester petit ?
+ * 1) Pourquoi index.php doit rester petit ?
  * ----------------------------------------------------------
  * Parce que son rôle est simple :
  *
@@ -36,7 +36,7 @@ App::run();
  * On évite de mettre toute la logique ici,
  * sinon le fichier devient énorme et difficile à gérer.
  *
- * Donc user.php reste un fichier "propre" et court.
+ * Donc index.php reste un fichier "propre" et court.
  *
  *
  * ----------------------------------------------------------
@@ -144,7 +144,7 @@ App::run();
  * ----------------------------------------------------------
  * 7) Conclusion (résumé très simple)
  * ----------------------------------------------------------
- * user.php sert à :
+ * index.php sert à :
  *   - charger l’autoloader
  *   - lancer l’application
  *
