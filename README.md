@@ -17,7 +17,8 @@ Ce projet est un mini framework **PHP POO en MVC** (Model / View / Controller) a
 Dans le dossier du projet, lance :
 
 ```bash
-php -S localhost:8081 -d display_errors=1 public/user.php
+cd public
+php -S localhost:8081 -d display_errors=1
 ```
 
 Puis ouvre ton navigateur : http://localhost:8081
