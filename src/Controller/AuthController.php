@@ -15,7 +15,7 @@ class AuthController extends Controller
             session_start();
         }
 
-        if (isset($_SESSION['username'])){
+        if (isset($_SESSION['username'])) {
             $this->redirect('/');
         }
 
@@ -43,7 +43,7 @@ class AuthController extends Controller
             session_start();
         }
 
-        if (isset($_SESSION['username'])){
+        if (isset($_SESSION['username'])) {
             $this->redirect('/');
         }
 

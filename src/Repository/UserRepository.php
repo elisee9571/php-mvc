@@ -16,80 +16,98 @@ class UserRepository
 
     /**
      * @info Récupère tous les utilisateurs
-     * @return array<int, array<string, mixed>>
+     * @return array<string, array<string, mixed>>
      */
-    public function findAll(): array
+    public function findAll(?array $criteria = []): array
     {
-        $stmt = $this->db->query("SELECT * FROM user");
-        $rows = $stmt->fetchAll();
+        $size = (int)isset($criteria['size']) ? $criteria['size'] : 5;
+        $page = (int)isset($criteria['page']) ? $criteria['page'] : 1;
+        $offset = ($page - 1) * $size;
 
-        $users = [];
-        foreach ($rows as $row) {
-            $users[] = $this->mapRowToUser($row);
-        }
+        $stmt = $this->db->prepare("SELECT * FROM user LIMIT :limit OFFSET :offset");
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, User::class); // Partie : 2
+        $stmt->execute([
+            'limit' => $size,
+            'offset' => $offset
+        ]);
+
+        $users = $stmt->fetchAll();
+        $count = (int)$this->db->query("SELECT COUNT(*) FROM user")->fetchColumn();
 
         $this->db = null; // fermeture de la connexion
-        return $users;
+
+        return [
+            'users' => $users,
+            'count' => $count
+        ];
     }
 
     /**
      * @info Récupère un utilisateur par son ID
-     * @return array<string, mixed>|null
+     * @return User|null
      */
     public function findById(int $id): ?User
     {
         $stmt = $this->db->prepare("SELECT * FROM user WHERE id = :id");
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, User::class); // Partie : 2
         $stmt->execute(['id' => $id]);
 
-        $row = $stmt->fetch();
+        $user = $stmt->fetch();
 
         $this->db = null; // fermeture de la connexion
-        return $row ? $this->mapRowToUser($row) : null;
-    }
-
-    // Partie 2
-    /** @param array<string,mixed> $row */
-    private function mapRowToUser(array $row): User
-    {
-        $user = new User();
-        $user
-            ->setId($row['id'])
-            ->setUsername($row['username'])
-            ->setEmail($row['email'])
-            ->setPassword($row['password']);
-
         return $user;
     }
 
+    /**
+     * @info Récupère un utilisateur par son Email
+     * @return User|null
+     */
     public function findByEmail(string $email): ?User
     {
         $stmt = $this->db->prepare("SELECT * FROM user WHERE email = :email");
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, User::class); // Partie : 2
         $stmt->execute(['email' => $email]);
 
-        $row = $stmt->fetch();
+        $user = $stmt->fetch();
 
         $this->db = null; // fermeture de la connexion
-        return $row ? $this->mapRowToUser($row) : null;
+        return $user;
     }
 
-    public function findBySearch(string $q): ?array
+    /**
+     * @info Récupère tous les utilisateurs correspondant à une recherche
+     * @return array<string, array<string, mixed>>
+     */
+    public function findBySearch(string $q, ?array $criteria = []): ?array
     {
+        $size = (int)isset($criteria['size']) ? $criteria['size'] : 5;
+        $page = (int)isset($criteria['page']) ? $criteria['page'] : 1;
+        $offset = ($page - 1) * $size;
         $like = "%{$q}%";
 
-        $stmt = $this->db->prepare("SELECT * FROM user WHERE username LIKE :q1 OR email LIKE :q2");
+        $stmt = $this->db->prepare("SELECT * FROM user WHERE username LIKE :q1 OR email LIKE :q2 LIMIT :limit OFFSET :offset");
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, User::class); // Partie : 2
         $stmt->execute([
-            ':q1' => $like,
-            ':q2' => $like
+            'q1' => $like,
+            'q2' => $like,
+            'limit' => $size,
+            'offset' => $offset
         ]);
 
-        $rows = $stmt->fetchAll();
+        $countStmt = $this->db->prepare("SELECT COUNT(*) FROM user WHERE username LIKE :q1 OR email LIKE :q2");
+        $countStmt->execute([
+            'q1' => $like,
+            'q2' => $like
+        ]);
 
-        $users = [];
-        foreach ($rows as $row) {
-            $users[] = $this->mapRowToUser($row);
-        }
+        $users = $stmt->fetchAll();
+        $count = (int)$countStmt->fetchColumn();
 
         $this->db = null; // fermeture de la connexion
-        return $users;
+
+        return [
+            'users' => $users,
+            'count' => $count
+        ];
     }
 }

@@ -38,8 +38,7 @@ class EntityManager
         }
 
         try {
-            // Démarre une transaction :
-            // toutes les opérations suivantes seront atomiques
+            // Démarre une transaction : toutes les opérations suivantes seront atomiques
             $this->db->beginTransaction();
 
             // Sauvegarde chaque entité enregistrée via persist()

@@ -12,16 +12,18 @@ final class UserController extends Controller
     public function index(): void
     {
         $repo = new UserRepository();
+        $criteria = $_GET;
 
-        if (isset($_GET['search'])) {
-            $users = $repo->findBySearch($_GET['q']);
+        if (isset($_GET['q'])) {
+            $data = $repo->findBySearch($_GET['q'], $criteria);
         } else {
-            $users = $repo->findAll();
+            $data = $repo->findAll($criteria);
         }
 
         $this->render('user/user', [
-            'title' => 'Liste des utilisateurs',
-            'users' => $users
+            'title' => 'List users',
+            'users' => $data['users'],
+            'count' => $data['count']
         ]);
     }
 
@@ -35,7 +37,7 @@ final class UserController extends Controller
         }
 
         $this->render('user/show', [
-            'title' => 'Profil utilisateur',
+            'title' => 'User informations',
             'user' => $user
         ]);
     }
@@ -43,18 +45,14 @@ final class UserController extends Controller
     public function new(): void
     {
         $user = new User();
-        $user
-            ->setUsername('Username789')
-            ->setEmail('elis@gmail.com')
-            ->setPassword('sxdcfgvhbjnk');
-
+        /* add $_POST */
         $manager = new EntityManager();
 
         $manager->persist($user);
         $manager->flush();
 
         $this->render('user/new', [
-            'title' => 'Créer un utilisateur',
+            'title' => 'Create user',
             'user' => $user
         ]);
     }
@@ -68,14 +66,14 @@ final class UserController extends Controller
             throw new \Exception('User not found', 404);
         }
 
-        $user->setUsername('csdfvgbjhdc');
+//        $user->setUsername('csdfvgbjhdc');
 
         $manager = new EntityManager();
         $manager->persist($user);
         $manager->flush();
 
         $this->render('user/edit', [
-            'title' => 'Modifier un utilisateur',
+            'title' => 'Edit user',
             'user' => $user
         ]);
     }
