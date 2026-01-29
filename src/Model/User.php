@@ -8,6 +8,8 @@ class User
 {
     private ?int $id = null;
 
+    private ?string $picture = null;
+
     private string $username;
 
     private string $email;
@@ -26,6 +28,17 @@ class User
     public function setId(?int $id): User
     {
         $this->id = $id;
+        return $this;
+    }
+
+    public function getPicture(): ?string
+    {
+        return $this->picture;
+    }
+
+    public function setPicture(?string $picture): User
+    {
+        $this->picture = $picture;
         return $this;
     }
 

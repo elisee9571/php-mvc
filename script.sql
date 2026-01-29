@@ -1,11 +1,15 @@
-DROP DATABASE site_php;
-CREATE DATABASE site_php;
+DROP
+    DATABASE site_php;
+CREATE
+    DATABASE site_php;
 
-USE site_php;
+USE
+    site_php;
 
 CREATE TABLE `user`
 (
     id         int PRIMARY KEY AUTO_INCREMENT,
+    picture    VARCHAR(255),
     username   VARCHAR(255) NOT NULL,
     email      VARCHAR(255) NOT NULL UNIQUE,
     password   VARCHAR(255) NOT NULL,
@@ -19,6 +23,7 @@ CREATE TABLE `product`
     slug        VARCHAR(255) NOT NULL,
     title       VARCHAR(255) NOT NULL,
     description TEXT         NOT NULL,
+    price       DECIMAL      NOT NULL,
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

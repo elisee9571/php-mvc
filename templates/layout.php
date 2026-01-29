@@ -1,4 +1,20 @@
-<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+function navActive(string $path): string
+{
+    $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+    // Home: actif uniquement sur la page racine
+    if ($path === '/') {
+        return $currentPath === '/' ? 'active' : '';
+    }
+
+    // Autres liens: actif si l'URL commence par le path
+    return str_starts_with($currentPath, $path) ? 'active' : '';
+}
+
+?>
 
 <!doctype html>
 <html lang="en">
@@ -11,7 +27,10 @@
     <title><?= $title ?? 'Mon Site' ?></title>
 
     <link rel="stylesheet" href="/assets/css/reset.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="/assets/css/main.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 <body>
@@ -20,51 +39,66 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="/">Navbar</a>
 
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/">Home</a>
-                </li>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+                    aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <?php if (isset($_SESSION['username'])): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user">User</a>
-                    </li>
-                <?php endif; ?>
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar"
+                 aria-labelledby="offcanvasNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="/contact">Contact</a>
-                </li>
-            </ul>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link <?= navActive('/') ?>" aria-current="page" href="/">Home</a>
+                        </li>
 
-            <ul class="navbar-nav d-flex align-items-center gap-3">
-                <?php if (isset($_SESSION['username'])): ?>
-                    <li class="btn-group">
-                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            <?= $_SESSION['username'] ?>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profil</a></li>
-                            <li><a class="dropdown-item" href="#">Setting</a></li>
-                            <li><a class="dropdown-item" href="#">Order</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
-                        </ul>
-                    </li>
-                <?php else: ?>
-                    <li class="nav-item">
-                        <a class="btn btn-primary" href="/login">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-secondary" href="/register">Register</a>
-                    </li>
-                <?php endif; ?>
-            </ul>
+                        <?php if (isset($_SESSION['username'])): ?>
+                            <li class="nav-item">
+                                <a class="nav-link <?= navActive('/user') ?>" href="/user">User</a>
+                            </li>
+                        <?php endif; ?>
+
+                        <li class="nav-item">
+                            <a class="nav-link <?= navActive('/contact') ?>" href="/contact">Contact</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-grid gap-2 d-md-block">
+                        <?php if (isset($_SESSION['username'])): ?>
+                            <li class="btn-group w-100">
+                                <button type="button" class="btn btn-secondary dropdown-toggle"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    <?= $_SESSION['username'] ?>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="/user/<?= $_SESSION['userId'] ?>">Profil</a></li>
+                                    <li><a class="dropdown-item" href="#">Setting</a></li>
+                                    <li><a class="dropdown-item" href="#">Order</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                                </ul>
+                            </li>
+                        <?php else: ?>
+                            <a class="btn btn-primary" href="/login">Login</a>
+                            <a class="btn btn-secondary" href="/register">Register</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 </header>
 
 <main class="container py-5">
-    <?= $contentFile; ?>
+    <?= $contentFile ?>
 </main>
 
 <footer class="container-fluid row row-cols-1 row-cols-sm-2 row-cols-md-5 py-5 my-5 border-top">
@@ -110,6 +144,8 @@
 </footer>
 
 <script src="/assets/js/filter-search.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
 </body>
 </html>

@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Core\Controller;
 use App\Core\EntityManager;
-use App\Model\User;
 use App\Repository\UserRepository;
 
 final class UserController extends Controller
@@ -37,22 +36,7 @@ final class UserController extends Controller
         }
 
         $this->render('user/show', [
-            'title' => 'User informations',
-            'user' => $user
-        ]);
-    }
-
-    public function new(): void
-    {
-        $user = new User();
-        /* add $_POST */
-        $manager = new EntityManager();
-
-        $manager->persist($user);
-        $manager->flush();
-
-        $this->render('user/new', [
-            'title' => 'Create user',
+            'title' => 'Profil user',
             'user' => $user
         ]);
     }
@@ -63,14 +47,31 @@ final class UserController extends Controller
         $user = $repo->findById($id);
 
         if (!$user) {
-            throw new \Exception('User not found', 404);
+            throw new \Exception('User not found', 400);
         }
 
-//        $user->setUsername('csdfvgbjhdc');
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!empty($_FILES['picture']['tmp_name'])) {
+                $ext = pathinfo($_FILES['picture']['name'], PATHINFO_EXTENSION);
+                $filename = uniqid('avatar_', true) . '.' . $ext;
 
-        $manager = new EntityManager();
-        $manager->persist($user);
-        $manager->flush();
+                $destDir = dirname(__DIR__) . '/../public/uploads/avatars';
+                if (!is_dir($destDir)) mkdir($destDir, 0775, true);
+
+                move_uploaded_file($_FILES['picture']['tmp_name'], $destDir . '/' . $filename);
+
+                $user->setPicture('/uploads/avatars/' . $filename);
+            }
+
+            $user->setUsername($_POST['username'])
+                ->setEmail($_POST['email']);
+
+            $manager = new EntityManager();
+            $manager->persist($user);
+            $manager->flush();
+
+            $this->redirect("/user/{$id}");
+        }
 
         $this->render('user/edit', [
             'title' => 'Edit user',

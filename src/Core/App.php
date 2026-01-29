@@ -25,7 +25,6 @@ final class App
 
                 '/user' => [\App\Controller\UserController::class, 'index'],
                 '/user/{id}' => [\App\Controller\UserController::class, 'show'],
-                '/user/new' => [\App\Controller\UserController::class, 'new'],
                 '/user/{id}/edit' => [\App\Controller\UserController::class, 'edit'],
 
                 '/login' => [\App\Controller\AuthController::class, 'login'],
@@ -34,6 +33,8 @@ final class App
             ],
             'POST' => [
                 '/contact' => [\App\Controller\ContactController::class, 'submit'],
+
+                '/user/{id}/edit' => [\App\Controller\UserController::class, 'edit'],
 
                 '/login' => [\App\Controller\AuthController::class, 'login'],
                 '/register' => [\App\Controller\AuthController::class, 'register'],
