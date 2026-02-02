@@ -36,6 +36,7 @@ abstract class Controller
     // Partie : 3
     protected function redirect(string $url): void
     {
+        header("HTTP/1.1 301 Moved Permanently");
         header("Location: $url");
         die();
     }
@@ -166,3 +167,4 @@ abstract class Controller
  * - éviter de répéter le code dans chaque controller
  * - afficher une vue facilement en envoyant des données
  */
+
